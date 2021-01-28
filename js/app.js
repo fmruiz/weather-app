@@ -3,15 +3,27 @@ const container = document.querySelector('.container');
 const resultado = document.querySelector('.resultado');
 const formulario = document.querySelector('#formulario');
 
+// countries array to change backgroundImage
+const countries = [   '../img/argentina.jpg', 
+                '../img/brasil.jpg',
+                '../img/bolivia.jpg',
+                '../img/chile.jpg',
+                '../img/colombia.jpg',
+                '../img/peru.jpg',]
 
 // window listener
 window.addEventListener('load', () => {
-    formulario.addEventListener('submit', buscarClima);
+    formulario.addEventListener('submit', searchTemp);
+    // change random backgroundImg
+    const random = Math.floor(Math.random()*countries.length);
+    document.body.style.backgroundImage = `url(${countries[random]})`;
+    document.body.style.backgroundRepeat = 'no-repeat';
+    document.body.style.backgroundSize = 'cover';
 });
 
 
 // functions
-const buscarClima = e => {
+const searchTemp = e => {
     e.preventDefault();
     // country n cities vars
     const ciudad = document.querySelector('#ciudad').value;
@@ -23,7 +35,7 @@ const buscarClima = e => {
         return;
     };
     // API
-    consultaAPI(ciudad, pais);
+    requestAPI(ciudad, pais);
 };
 
 // error message
@@ -47,7 +59,7 @@ const error = mje => {
 };
 
 // API request
-const consultaAPI = (ciudad, pais) => {
+const requestAPI = (ciudad, pais) => {
     // key n url vars
     const appID = '369bdec3fc9bc9d9916842e40c227695';
     const url = `https://api.openweathermap.org/data/2.5/weather?q=${ciudad},${pais}&appid=${appID}`;
@@ -62,33 +74,35 @@ const consultaAPI = (ciudad, pais) => {
                 error('Ciudad no encontrada');
             };
             // show results
-            mostrarClima(data);
+            showResults(data);
         })
 };
 
 // show results
-const mostrarClima = data => {
+const showResults = data => {
     // data destructuring and conversion to celsius var
     const {main:{temp, temp_max, temp_min}, name} = data;
-    const temperature = celsius(temp)
-    const temperature_max = celsius(temp_max)
-    const temperature_min = celsius(temp_min)
+    const temperature = celsius(temp);
+    const temperature_max = celsius(temp_max);
+    const temperature_min = celsius(temp_min);
+    const daySensation = sensation(temperature);
 
     // title city
-    const cityName = document.createElement('h3');
-    cityName.classList.add('city-name', 'text-center', 'my-5');
-    cityName.innerHTML = name
-    resultado.append(cityName)
+    const cityName = document.createElement('h2');
+    cityName.classList.add('city-name', 'text-center', 'mb-5', 'mt-3');
+    cityName.innerHTML = name;
+    resultado.append(cityName);
     // tempDiv
     const tempDiv = document.createElement('div');
-    tempDiv.classList.add('d-flex', 'justify-content-around', 'align-items-center')
+    tempDiv.classList.add('d-flex', 'justify-content-around', 'align-items-center');
     tempDiv.innerHTML = `
-    <span>${temperature}°C</span>
+    <span class="temperature">${temperature}°C</span>
     <div class="d-flex flex-column">
-    <span>${temperature_max}°C</span>
-    <span>${temperature_min}°C</span>
+    <span>${temperature_max}°C MAX</span>
+    <span>${temperature_min}°C MIN</span>
+    <p class="text-center sensation">${daySensation}</p>
     </div>`
-    resultado.append(tempDiv)
+    resultado.append(tempDiv);
 };
 
 // rounding data n convert to celsius
@@ -97,11 +111,25 @@ const celsius = data => {
     return Math.round(temp-273.15)
 };
 
+// day sensation data
+const sensation = data => {
+    const tempSensation = parseInt(data)
+    if(tempSensation>25){
+        return "Dia caluroso"
+    } if(tempSensation>15 && tempSensation<25) {
+        return "Dia calido"
+    } if(tempSensation<15) {
+        return "Dia frio"
+    }
+}
+
 // clean last search
 const cleanHTML = () => {
     while(resultado.firstChild){
         resultado.removeChild(resultado.firstChild)
     };
 };
+
+
 
 
