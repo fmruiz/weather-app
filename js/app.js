@@ -118,7 +118,7 @@ const sensation = data => {
     const tempSensation = parseInt(data)
     if(tempSensation>25){
         return "Dia caluroso"
-    } if(tempSensation>15 && tempSensation<=25) {
+    } if(tempSensation>=15 && tempSensation<=25) {
         return "Dia calido"
     } if(tempSensation<15) {
         return "Dia frio"
